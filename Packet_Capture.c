@@ -7,6 +7,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <pcap.h>
+#include <hiredis/hiredis.h>
 
 #define PORT_FILTER_HEADER			"port "
 #define PORT_FILTER_HEADER_LENGTH	5
