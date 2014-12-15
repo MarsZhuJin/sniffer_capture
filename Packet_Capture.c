@@ -89,13 +89,11 @@ void filter_handler(u_char *user,
 
 	strcat(redis_key, "ip_src:");
 	strcat(redis_key, ip_src);
-	strcat(redis_key, " ip_dst:");
+	strcat(redis_key, ",ip_dst:");
 	strcat(redis_key, ip_dst);
 
 	strcat(redis_cmd, "incrby ");
-	strcat(redis_cmd, "\"");
 	strcat(redis_cmd, redis_key);
-	strcat(redis_cmd, "\"");
 	strcat(redis_cmd, ip_total_num);
 
 	redisReply *r = (redisReply *)redisCommand(c, redis_cmd);
