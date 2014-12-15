@@ -12,6 +12,8 @@
 #define PORT_FILTER_HEADER			"port "
 #define PORT_FILTER_HEADER_LENGTH	5
 
+#define BUFF_SIZE	128
+
 /* Ethernet addresses are 6 bytes */
 #define ETHER_ADDR_LEN	6
 
@@ -40,6 +42,7 @@ struct sniff_ip {
 };
 
 char *program_name;
+redisContext *c = NULL;
 
 void error(const char *fmt, ...)
 {
@@ -68,17 +71,39 @@ void filter_handler(u_char *user,
 	
 	ip = (struct sniff_ip *)(bytes + size_ethernet);
 
-	//char *inet_ntoa(struct in_addr inaddr);
 	char *ip_src = NULL;
 	char *ip_dst = NULL;
-	int ip_total_len = 0;
+	char ip_total_num[BUFF_SIZE];
 
 	ip_src = inet_ntoa(ip->ip_src);
 	ip_dst = inet_ntoa(ip->ip_dst);
-	ip_total_len = ntohs(ip->ip_len);
-	
-	
-	printf("ip_src: %s, ip_dst: %s, ip_len: %d\n", ip_src, ip_dst, ip_total_len);
+
+	char redis_key[BUFF_SIZE];
+	char redis_cmd[BUFF_SIZE];
+
+	memset(redis_key, 0, BUFF_SIZE);
+	memset(redis_cmd, 0, BUFF_SIZE);
+	memset(ip_total_num, 0, BUFF_SIZE);
+
+	sprintf(ip_total_num, " %d", ntohs(ip->ip_len));
+
+	strcat(redis_key, "ip_src:");
+	strcat(redis_key, ip_src);
+	strcat(redis_key, " ip_dst:");
+	strcat(redis_key, ip_dst);
+
+	strcat(redis_cmd, "incrby ");
+	strcat(redis_cmd, "\"");
+	strcat(redis_cmd, redis_key);
+	strcat(redis_cmd, "\"");
+	strcat(redis_cmd, ip_total_num);
+
+	redisReply *r = (redisReply *)redisCommand(c, redis_cmd);
+	if (r == NULL) {
+		error("execute %s failed.\n", redis_cmd);
+	}
+
+	printf("redis command: %s\n", redis_cmd);
 }
 
 int main(int argc, char **argv)
@@ -111,6 +136,12 @@ int main(int argc, char **argv)
 			default:
 				break;
 		}
+	}
+
+	/* Initialize redis client */
+	c = redisConnect("127.0.0.1", 6379);
+	if (c->err) {
+		error("Connect to redis server failed.\n");
 	}
 
 	if (device == NULL) {
