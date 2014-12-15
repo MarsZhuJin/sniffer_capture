@@ -103,6 +103,8 @@ void filter_handler(u_char *user,
 		error("execute %s failed.\n", redis_cmd);
 	}
 
+	freeReplyObject(r);
+
 	printf("redis command: %s\n", redis_cmd);
 }
 
@@ -162,6 +164,8 @@ int main(int argc, char **argv)
 	pcap_loop(p_handle, filter_number, filter_handler, NULL);
 
 	pcap_close(p_handle);
+
+	redisFree(c);
 
 	return 0;
 }
