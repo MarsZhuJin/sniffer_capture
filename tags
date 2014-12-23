@@ -1,0 +1,59 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+BUFF_SIZE	Packet_Capture.c	18;"	d	file:
+CC	Makefile	/^CC=gcc$/;"	m
+CFLAGS	Makefile	/^CFLAGS=-g -O0$/;"	m
+ETHER_ADDR_LEN	common.h	8;"	d
+FAILURE	common.h	5;"	d
+IP_DF	common.h	32;"	d
+IP_MF	common.h	33;"	d
+IP_OFFMASK	common.h	34;"	d
+IP_RF	common.h	31;"	d
+OBJ_FILE	Makefile	/^OBJ_FILE=Packet_Capture$/;"	m
+PORT_FILTER_HEADER	Packet_Capture.c	15;"	d	file:
+PORT_FILTER_HEADER_LENGTH	Packet_Capture.c	16;"	d	file:
+SNIFFER_LENGTH	sniffer_list.h	15;"	d
+SNIFF_BUFF_MAX_LENGTH	common.h	10;"	d
+SOURCE_FILE	Makefile	/^SOURCE_FILE=Packet_Capture.c$/;"	m
+SUCCESS	common.h	4;"	d
+_COMMON_H_	common.h	2;"	d
+_SNIFFER_LIST_H_	sniffer_list.h	2;"	d
+copy_argv	Packet_Capture.c	/^char *copy_argv(register char **argv)$/;"	f
+current	sniffer_list.h	/^	uint32_t current;$/;"	m	struct:sniff_list
+data	common.h	/^	u_char *data;$/;"	m	struct:__anon1
+error	Packet_Capture.c	/^void error(const char *fmt, ...)$/;"	f
+ether_dhost	common.h	/^	u_char ether_dhost[ETHER_ADDR_LEN]; \/* Destination host address *\/$/;"	m	struct:sniff_ethernet
+ether_shost	common.h	/^	u_char ether_shost[ETHER_ADDR_LEN]; \/* Source host address *\/$/;"	m	struct:sniff_ethernet
+ether_type	common.h	/^	u_short ether_type; \/* IP? ARP? RARP? etc *\/$/;"	m	struct:sniff_ethernet
+ip_dst	common.h	/^	struct in_addr ip_src,ip_dst; \/* source and dest address *\/$/;"	m	struct:sniff_ip	typeref:struct:sniff_ip::
+ip_id	common.h	/^	u_short ip_id;		\/* identification *\/$/;"	m	struct:sniff_ip
+ip_len	common.h	/^	u_short ip_len;		\/* total length *\/$/;"	m	struct:sniff_ip
+ip_off	common.h	/^	u_short ip_off;		\/* fragment offset field *\/$/;"	m	struct:sniff_ip
+ip_p	common.h	/^	u_char ip_p;		\/* protocol *\/$/;"	m	struct:sniff_ip
+ip_src	common.h	/^	struct in_addr ip_src,ip_dst; \/* source and dest address *\/$/;"	m	struct:sniff_ip	typeref:struct:sniff_ip::in_addr
+ip_sum	common.h	/^	u_short ip_sum;		\/* checksum *\/$/;"	m	struct:sniff_ip
+ip_tos	common.h	/^	u_char ip_tos;		\/* type of service *\/$/;"	m	struct:sniff_ip
+ip_ttl	common.h	/^	u_char ip_ttl;		\/* time to live *\/$/;"	m	struct:sniff_ip
+ip_vhl	common.h	/^	u_char ip_vhl;		\/* version << 4 | header length >> 2 *\/$/;"	m	struct:sniff_ip
+len	common.h	/^	uint32_t len;$/;"	m	struct:__anon1
+list	sniffer_list.h	/^	sniff_str_t *list;$/;"	m	struct:sniff_list
+main	Packet_Capture.c	/^int main(int argc, char **argv)$/;"	f
+mutex	Packet_Capture.c	/^pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
+program_name	Packet_Capture.c	/^const char *program_name;$/;"	v
+redis_handler	Packet_Capture.c	/^void *redis_handler(void *arg)$/;"	f
+sniff_ethernet	common.h	/^struct sniff_ethernet {$/;"	s
+sniff_ip	common.h	/^struct sniff_ip {$/;"	s
+sniff_list	sniffer_list.h	/^struct sniff_list {$/;"	s
+sniff_list_destroy	sniffer_list.h	/^static inline int sniff_list_destroy(void)$/;"	f
+sniff_list_init	sniffer_list.h	/^static inline int sniff_list_init(void)$/;"	f
+sniff_list_pull	sniffer_list.h	/^static inline int sniff_list_pull(u_char *sniff_data)$/;"	f
+sniff_list_push	sniffer_list.h	/^static inline int sniff_list_push(const u_char *sniff_data, uint32_t sniff_data_len)$/;"	f
+sniff_mutex	sniffer_list.h	/^static pthread_mutex_t sniff_mutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
+sniff_str_t	common.h	/^} sniff_str_t;$/;"	t	typeref:struct:__anon1
+sniffer_handler	Packet_Capture.c	/^void sniffer_handler(u_char *user, $/;"	f
+sniffer_list	Packet_Capture.c	/^struct sniff_list sniffer_list;$/;"	v	typeref:struct:sniff_list
+total_length	sniffer_list.h	/^	uint32_t total_length;$/;"	m	struct:sniff_list

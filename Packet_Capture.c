@@ -9,6 +9,8 @@
 #include <pcap.h>
 #include <hiredis/hiredis.h>
 #include <pthread.h>
+#include <errno.h>
+#include <string.h>
 #include "common.h"
 #include "sniffer_list.h"
 
@@ -150,9 +152,19 @@ int main(int argc, char **argv)
 	pcap_t *handler = NULL;
 	char err_buf[PCAP_ERRBUF_SIZE];
 	int cpu_num = 0;
+	int i = 0;
+	pthread_t *pthr = NULL;
 
 	program_name = argv[0];
 	cpu_num = sysconf(_SC_NPROCESSORS_ONLN);
+	pthr = (pthread_t *) malloc(cpu_num * sizeof(pthread_t));
+	if (pthr == NULL) {
+		error("%s", strerror(errno));
+	}
+
+	for (i = 0; i < cpu_num; i++) {
+		pthread_create(&pthr[i], NULL, redis_handler, NULL);
+	}
 
 	while ((opt = getopt(argc, argv, optstring)) != -1) {
 		switch (opt) {
@@ -190,6 +202,10 @@ int main(int argc, char **argv)
 	}
 
 	pcap_loop(handler, filter_number, sniffer_handler, NULL);
+
+	for (i = 0; i < cpu_num; i++) {
+		pthread_join(pthr[i], NULL);
+	}
 
 	pcap_close(handler);
 
