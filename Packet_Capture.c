@@ -81,9 +81,7 @@ void *redis_handler(void *arg)
 	const struct sniff_ip *ip = NULL;
 	char *ip_src = NULL;
 	char *ip_dst = NULL;
-	char ip_total_num[BUFF_SIZE];
-	char redis_key[BUFF_SIZE];
-	char redis_cmd[BUFF_SIZE];
+	u_short total_length = 0;
 	redisContext *c = NULL;
 	int ret = 0;
 
@@ -94,9 +92,9 @@ void *redis_handler(void *arg)
 	}
 
 	while (1) {
+		memset(bytes, 0, SNIFF_BUFF_MAX_LENGTH);
 		ret = sniff_list_pull(bytes);
 		if (ret < 0) {
-			memset(bytes, 0, SNIFF_BUFF_MAX_LENGTH);
 			continue;
 		}
 
@@ -104,32 +102,19 @@ void *redis_handler(void *arg)
 		
 		ip_src = inet_ntoa(ip->ip_src);
 		ip_dst = inet_ntoa(ip->ip_dst);
+		total_length = ntohs(ip->ip_len);
 
-		memset(redis_key, 0, BUFF_SIZE);
-		memset(redis_cmd, 0, BUFF_SIZE);
-		memset(ip_total_num, 0, BUFF_SIZE);
+		fprintf(stderr, "ip_src: %s, ip_dst: %s, total_length: %hd\n", ip_src, ip_dst, total_length);
 
-		sprintf(ip_total_num, " %d", ntohs(ip->ip_len));
-
-		strcat(redis_key, "ip_src:");
-		strcat(redis_key, ip_src);
-		strcat(redis_key, ",ip_dst:");
-		strcat(redis_key, ip_dst);
-
-		strcat(redis_cmd, "incrby ");
-		strcat(redis_cmd, redis_key);
-		strcat(redis_cmd, ip_total_num);
-
-		redisReply *r = (redisReply *)redisCommand(c, redis_cmd);
+		redisReply *r = 
+			(redisReply *)redisCommand(c, "INCRBY %s,%s %u", ip_src, ip_dst, total_length);
 		if (r == NULL) {
-			error("execute %s failed.\n", redis_cmd);
+			error("execute redis command failed.\n");
 		}
 		freeReplyObject(r);
 	}
 
 	redisFree(c);
-
-	fprintf(stderr, "redis command: %s\n", redis_cmd);
 
 	pthread_exit(NULL);
 }
@@ -203,9 +188,12 @@ int main(int argc, char **argv)
 
 	pcap_loop(handler, filter_number, sniffer_handler, NULL);
 
+	#if 0
+
 	for (i = 0; i < cpu_num; i++) {
 		pthread_join(pthr[i], NULL);
 	}
+	#endif
 
 	pcap_close(handler);
 
