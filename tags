@@ -4,15 +4,17 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
-BUFF_SIZE	Packet_Capture.c	20;"	d	file:
+BUFF_SIZE	Packet_Capture.c	22;"	d	file:
 CC	Makefile	/^CC=gcc$/;"	m
 CFLAGS	Makefile	/^CFLAGS=-g -O0$/;"	m
+DEFAULT_SNAPLEN	Packet_Capture.c	20;"	d	file:
 ETHER_ADDR_LEN	common.h	8;"	d
 FAILURE	common.h	5;"	d
-IP_DF	common.h	32;"	d
-IP_MF	common.h	33;"	d
-IP_OFFMASK	common.h	34;"	d
-IP_RF	common.h	31;"	d
+IP_DF	common.h	33;"	d
+IP_MF	common.h	34;"	d
+IP_OFFMASK	common.h	35;"	d
+IP_RF	common.h	32;"	d
+MAXINUM_SNAPLEN	Packet_Capture.c	19;"	d	file:
 OBJ_FILE	Makefile	/^OBJ_FILE=Packet_Capture$/;"	m
 PORT_FILTER_HEADER	Packet_Capture.c	17;"	d	file:
 PORT_FILTER_HEADER_LENGTH	Packet_Capture.c	18;"	d	file:
@@ -20,6 +22,7 @@ SNIFFER_LENGTH	sniffer_list.h	15;"	d
 SNIFF_BUFF_MAX_LENGTH	common.h	10;"	d
 SOURCE_FILE	Makefile	/^SOURCE_FILE=Packet_Capture.c$/;"	m
 SUCCESS	common.h	4;"	d
+VERSION	common.h	11;"	d
 _COMMON_H_	common.h	2;"	d
 _SNIFFER_LIST_H_	sniffer_list.h	2;"	d
 copy_argv	Packet_Capture.c	/^char *copy_argv(register char **argv)$/;"	f
@@ -43,6 +46,8 @@ len	common.h	/^	uint32_t len;$/;"	m	struct:__anon1
 list	sniffer_list.h	/^	sniff_str_t *list;$/;"	m	struct:sniff_list
 main	Packet_Capture.c	/^int main(int argc, char **argv)$/;"	f
 mutex	Packet_Capture.c	/^pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
+print_usage	Packet_Capture.c	/^static void print_usage(void)$/;"	f	file:
+print_version	Packet_Capture.c	/^static void print_version(void)$/;"	f	file:
 program_name	Packet_Capture.c	/^const char *program_name;$/;"	v
 redis_handler	Packet_Capture.c	/^void *redis_handler(void *arg)$/;"	f
 sniff_ethernet	common.h	/^struct sniff_ethernet {$/;"	s

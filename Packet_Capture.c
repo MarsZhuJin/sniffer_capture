@@ -16,6 +16,8 @@
 
 #define PORT_FILTER_HEADER			"port "
 #define PORT_FILTER_HEADER_LENGTH	5
+#define MAXINUM_SNAPLEN		262144
+#define DEFAULT_SNAPLEN		MAXINUM_SNAPLEN
 
 #define BUFF_SIZE	128
 
@@ -39,6 +41,20 @@ void error(const char *fmt, ...)
 	}
 
 	exit(1);
+}
+
+static void print_version(void)
+{
+	(void) fprintf(stderr, "%s version %s\n", program_name, VERSION);
+	(void) fprintf(stderr, "%s\n", pcap_lib_version());
+}
+
+static void print_usage(void)
+{
+	print_version();
+	(void) fprintf(stderr, 
+		"Usage: %s [-hv] [-c count]\n"
+		"\t\t[-i interface]\n", program_name);
 }
 
 /*
@@ -128,9 +144,8 @@ void sniffer_handler(u_char *user,
 int main(int argc, char **argv)
 {
 	int opt;
-	char *optstring = "i:p:c:";
-	char *cmd_buf = NULL;
-	char *device = NULL;
+	char *optstring = "i:p:c:hv";
+	char *cmd_buf = NULL, *device = NULL, *cp = NULL;
 	int filter_number = -1;
 	bpf_u_int32 localnet = 0, netmask = 0;
 	struct bpf_program fcode;
@@ -140,7 +155,32 @@ int main(int argc, char **argv)
 	int i = 0;
 	pthread_t *pthr = NULL;
 
-	program_name = argv[0];
+	if ((cp = strrchr(argv[0], '/')) != NULL)
+		program_name = cp + 1;
+	else
+		program_name = argv[0];
+
+	while ((opt = getopt(argc, argv, optstring)) != -1) {
+		switch (opt) {
+			case 'i':
+				device = optarg;
+				break;
+			case 'c':
+				filter_number = atoi(optarg);
+				break;
+			case 'h':
+				print_usage();
+				exit(0);
+				break;
+			case 'v':
+				print_version();
+				exit(0);
+				break;
+			default:
+				break;
+		}
+	}
+
 	cpu_num = sysconf(_SC_NPROCESSORS_ONLN);
 	pthr = (pthread_t *) malloc(cpu_num * sizeof(pthread_t));
 	if (pthr == NULL) {
@@ -151,19 +191,6 @@ int main(int argc, char **argv)
 		pthread_create(&pthr[i], NULL, redis_handler, NULL);
 	}
 
-	while ((opt = getopt(argc, argv, optstring)) != -1) {
-		switch (opt) {
-			case 'i':
-				device = optarg;
-				break;
-			case 'c':
-				filter_number = atoi(optarg);
-				break;
-			default:
-				break;
-		}
-	}
-
 
 	if (device == NULL) {
 		device = pcap_lookupdev(err_buf);
@@ -172,10 +199,14 @@ int main(int argc, char **argv)
 		}
 	}
 
-	handler = pcap_open_live(device, 65535, 0, 0, err_buf);
+	handler = pcap_open_live(device, DEFAULT_SNAPLEN, 0, 0, err_buf);
 
 	if (pcap_lookupnet(device, &localnet, &netmask, err_buf) < 0) {
 		error("%s", err_buf);
+	}
+
+	if (pcap_datalink(handler) != DLT_EN10MB) {
+		error("Device %s doesn't provide Ethernet headers - not supported\n", device);
 	}
 
 	cmd_buf = copy_argv(&argv[optind]);

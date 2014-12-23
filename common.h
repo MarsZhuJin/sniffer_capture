@@ -8,6 +8,7 @@
 #define ETHER_ADDR_LEN	6
 
 #define SNIFF_BUFF_MAX_LENGTH	65535
+#define VERSION		"1.0.0"
 
 typedef struct {
 	u_char *data;
