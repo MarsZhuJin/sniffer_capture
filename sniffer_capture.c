@@ -43,6 +43,21 @@ void error(const char *fmt, ...)
 	exit(1);
 }
 
+void warning(const char *fmt, ...)
+{
+    va_list ap;
+
+    (void)fprintf(stderr, "%s: WARNING: ", program_name);
+    va_start(ap, fmt);
+    (void)vfprintf(stderr, fmt, ap);
+    va_end(ap);
+    if (*fmt) {
+        fmt += strlen(fmt);
+        if (fmt[-1] != '\n')
+            (void)fputc('\n', stderr);
+    }
+}
+
 static void print_version(void)
 {
 	(void) fprintf(stderr, "%s version %s\n", program_name, VERSION);
@@ -200,6 +215,10 @@ int main(int argc, char **argv)
 	}
 
 	handler = pcap_open_live(device, DEFAULT_SNAPLEN, 0, 0, err_buf);
+	if (handler == NULL) 
+        error("%s", err_buf);
+	else if (*err_buf)
+		warning("%s", err_buf);
 
 	if (pcap_lookupnet(device, &localnet, &netmask, err_buf) < 0) {
 		error("%s", err_buf);
@@ -225,6 +244,11 @@ int main(int argc, char **argv)
 		pthread_join(pthr[i], NULL);
 	}
 	#endif
+
+	if (pthr != NULL) {
+        free(pthr);
+        pthr = NULL;
+	}
 
 	pcap_close(handler);
 
