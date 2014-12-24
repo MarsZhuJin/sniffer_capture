@@ -100,12 +100,9 @@ char *copy_argv(register char **argv)
 
 void *redis_handler(void *arg)
 {
-	char bytes[SNIFF_BUFF_MAX_LENGTH];
-	int size_ethernet = sizeof(struct sniff_ethernet);
-	const struct sniff_ip *ip = NULL;
-	char *addr_buf = NULL;
 	char ip_src[MAXINUM_ADDR_LENGTH] = "";
 	char ip_dst[MAXINUM_ADDR_LENGTH] = "";
+	char *addr_buf = NULL;
 	redisContext *c = NULL;
 	int ret = 0;
 
@@ -118,23 +115,21 @@ void *redis_handler(void *arg)
 	}
 
 	while (1) {
-		memset(bytes, 0, SNIFF_BUFF_MAX_LENGTH);
 		memset(ip_src, 0, MAXINUM_ADDR_LENGTH);
 		memset(ip_dst, 0, MAXINUM_ADDR_LENGTH);
 
-		ret = sniff_list_pull(bytes);
+		struct sniff_iphdr ip_info;
+		ret = sniff_list_pull(&ip_info);
 		if (ret < 0) {
 			continue;
 		}
 
-		ip = (struct sniff_ip *) (bytes + size_ethernet);
-		
-		addr_buf = inet_ntoa(ip->ip_src);
+		addr_buf = inet_ntoa(ip_info.src);
 		memcpy(ip_src, addr_buf, strlen(addr_buf) + 1);
-		addr_buf = inet_ntoa(ip->ip_dst);
+		addr_buf = inet_ntoa(ip_info.dst);
 		memcpy(ip_dst, addr_buf, strlen(addr_buf) + 1);
 
-		u_short total_length = ntohs(ip->ip_len);
+		u_short total_length = ntohs(ip_info.len);
 
 		redisReply *r = 
 			(redisReply *)redisCommand(c, "INCRBY %s,%s %u", ip_src, ip_dst, total_length);
@@ -152,7 +147,17 @@ void *redis_handler(void *arg)
 void sniffer_handler(u_char *user, 
 	const struct pcap_pkthdr *h, const u_char *bytes)
 {
-	sniff_list_push(bytes, h->caplen);
+	int size_ethernet = sizeof(struct sniff_ethernet);
+	const struct sniff_ip *ip_hdr = NULL;
+	struct sniff_iphdr ip_info;
+
+	ip_hdr = (struct sniff_ip *) (bytes + size_ethernet);
+
+	ip_info.src = ip_hdr->ip_src;
+	ip_info.dst = ip_hdr->ip_dst;
+	ip_info.len = ip_hdr->ip_len;
+
+	sniff_list_push(ip_info);
 }
 
 int main(int argc, char **argv)
@@ -167,7 +172,7 @@ int main(int argc, char **argv)
 	char err_buf[PCAP_ERRBUF_SIZE];
 	int cpu_num = 0;
 	int i = 0;
-	pthread_t *pthr = NULL;
+	pthread_t *thr = NULL;
 
 	if ((cp = strrchr(argv[0], '/')) != NULL)
 		program_name = cp + 1;
@@ -197,13 +202,13 @@ int main(int argc, char **argv)
 
 	//cpu_num = sysconf(_SC_NPROCESSORS_ONLN);
 	cpu_num = 10;
-	pthr = (pthread_t *) malloc(cpu_num * sizeof(pthread_t));
-	if (pthr == NULL) {
+	thr = (pthread_t *) malloc(cpu_num * sizeof(pthread_t));
+	if (thr == NULL) {
 		error("%s", strerror(errno));
 	}
 
 	for (i = 0; i < cpu_num; i++) {
-		pthread_create(&pthr[i], NULL, redis_handler, NULL);
+		pthread_create(&thr[i], NULL, redis_handler, NULL);
 	}
 
 
@@ -237,10 +242,10 @@ int main(int argc, char **argv)
 	pcap_loop(handler, filter_number, sniffer_handler, NULL);
 
 	for (i = 0; i < cpu_num; i++) {
-		pthread_cancel(pthr[i]);
+		pthread_cancel(thr[i]);
 	}
 
-    free(pthr);
+    free(thr);
 
 	pcap_close(handler);
 

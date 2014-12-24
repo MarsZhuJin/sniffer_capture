@@ -21,6 +21,12 @@ typedef struct {
 	uint32_t len;
 } sniff_str_t;
 
+struct sniff_iphdr {
+	struct in_addr src;
+	struct in_addr dst;
+	uint32_t len;
+};
+
 /* Ethernet header */
 struct sniff_ethernet {
 	u_char ether_dhost[ETHER_ADDR_LEN]; /* Destination host address */

@@ -10,10 +10,10 @@ CFLAGS	Makefile	/^CFLAGS=-g -O0$/;"	m
 DEFAULT_SNAPLEN	common.h	14;"	d
 ETHER_ADDR_LEN	common.h	8;"	d
 FAILURE	common.h	5;"	d
-IP_DF	common.h	39;"	d
-IP_MF	common.h	40;"	d
-IP_OFFMASK	common.h	41;"	d
-IP_RF	common.h	38;"	d
+IP_DF	common.h	45;"	d
+IP_MF	common.h	46;"	d
+IP_OFFMASK	common.h	47;"	d
+IP_RF	common.h	44;"	d
 MAXINUM_ADDR_LENGTH	common.h	15;"	d
 MAXINUM_SNAPLEN	common.h	13;"	d
 OBJ_FILE	Makefile	/^OBJ_FILE=sniffer_capture$/;"	m
@@ -27,6 +27,7 @@ _SNIFFER_LIST_H_	sniffer_list.h	2;"	d
 copy_argv	sniffer_capture.c	/^char *copy_argv(register char **argv)$/;"	f
 current	sniffer_list.h	/^	uint32_t current;$/;"	m	struct:sniff_list
 data	common.h	/^	u_char *data;$/;"	m	struct:__anon1
+dst	common.h	/^	struct in_addr dst;$/;"	m	struct:sniff_iphdr	typeref:struct:sniff_iphdr::in_addr
 error	sniffer_capture.c	/^void error(const char *fmt, ...)$/;"	f
 ether_dhost	common.h	/^	u_char ether_dhost[ETHER_ADDR_LEN]; \/* Destination host address *\/$/;"	m	struct:sniff_ethernet
 ether_shost	common.h	/^	u_char ether_shost[ETHER_ADDR_LEN]; \/* Source host address *\/$/;"	m	struct:sniff_ethernet
@@ -42,7 +43,8 @@ ip_tos	common.h	/^	u_char ip_tos;		\/* type of service *\/$/;"	m	struct:sniff_ip
 ip_ttl	common.h	/^	u_char ip_ttl;		\/* time to live *\/$/;"	m	struct:sniff_ip
 ip_vhl	common.h	/^	u_char ip_vhl;		\/* version << 4 | header length >> 2 *\/$/;"	m	struct:sniff_ip
 len	common.h	/^	uint32_t len;$/;"	m	struct:__anon1
-list	sniffer_list.h	/^	sniff_str_t *list;$/;"	m	struct:sniff_list
+len	common.h	/^	uint32_t len;$/;"	m	struct:sniff_iphdr
+list	sniffer_list.h	/^	struct sniff_iphdr *list;$/;"	m	struct:sniff_list	typeref:struct:sniff_list::sniff_iphdr
 main	sniffer_capture.c	/^int main(int argc, char **argv)$/;"	f
 mutex	sniffer_capture.c	/^pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 print_usage	sniffer_capture.c	/^static void print_usage(void)$/;"	f	file:
@@ -51,14 +53,16 @@ program_name	sniffer_capture.c	/^const char *program_name;$/;"	v
 redis_handler	sniffer_capture.c	/^void *redis_handler(void *arg)$/;"	f
 sniff_ethernet	common.h	/^struct sniff_ethernet {$/;"	s
 sniff_ip	common.h	/^struct sniff_ip {$/;"	s
+sniff_iphdr	common.h	/^struct sniff_iphdr {$/;"	s
 sniff_list	sniffer_list.h	/^struct sniff_list {$/;"	s
 sniff_list_destroy	sniffer_list.h	/^static inline int sniff_list_destroy(void)$/;"	f
 sniff_list_init	sniffer_list.h	/^static inline int sniff_list_init(void)$/;"	f
-sniff_list_pull	sniffer_list.h	/^static inline int sniff_list_pull(u_char *sniff_data)$/;"	f
-sniff_list_push	sniffer_list.h	/^static inline int sniff_list_push(const u_char *sniff_data, uint32_t sniff_data_len)$/;"	f
+sniff_list_pull	sniffer_list.h	/^static inline int sniff_list_pull(struct sniff_iphdr *data)$/;"	f
+sniff_list_push	sniffer_list.h	/^static inline int sniff_list_push(struct sniff_iphdr ip_info)$/;"	f
 sniff_mutex	sniffer_list.h	/^static pthread_mutex_t sniff_mutex = PTHREAD_MUTEX_INITIALIZER;$/;"	v
 sniff_str_t	common.h	/^} sniff_str_t;$/;"	t	typeref:struct:__anon1
 sniffer_handler	sniffer_capture.c	/^void sniffer_handler(u_char *user, $/;"	f
 sniffer_list	sniffer_capture.c	/^struct sniff_list sniffer_list;$/;"	v	typeref:struct:sniff_list
+src	common.h	/^	struct in_addr src;$/;"	m	struct:sniff_iphdr	typeref:struct:sniff_iphdr::in_addr
 total_length	sniffer_list.h	/^	uint32_t total_length;$/;"	m	struct:sniff_list
 warning	sniffer_capture.c	/^void warning(const char *fmt, ...)$/;"	f

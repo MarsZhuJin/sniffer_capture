@@ -7,7 +7,7 @@
 #include "common.h"
 
 struct sniff_list {
-	sniff_str_t *list;
+	struct sniff_iphdr *list;
 	uint32_t total_length;
 	uint32_t current;
 };
@@ -21,18 +21,18 @@ static inline int sniff_list_init(void)
 {
 	sniffer_list.total_length = SNIFFER_LENGTH;
 	sniffer_list.current = 0;
-	sniffer_list.list  = (sniff_str_t *) malloc(SNIFFER_LENGTH * sizeof(sniff_str_t));
+	sniffer_list.list  = (struct sniff_iphdr *) malloc(SNIFFER_LENGTH * sizeof(struct sniff_iphdr));
 	if (sniffer_list.list == NULL) {
 		fprintf(stderr, "malloc failed.\n");
 		return FAILURE;
 	}
 
-	memset(sniffer_list.list, 0, SNIFFER_LENGTH * sizeof(sniff_str_t));
+	memset(sniffer_list.list, 0, SNIFFER_LENGTH * sizeof(struct sniff_iphdr));
 
 	return SUCCESS;
 }
 
-static inline int sniff_list_push(const u_char *sniff_data, uint32_t sniff_data_len)
+static inline int sniff_list_push(struct sniff_iphdr ip_info)
 {
 	uint32_t current = 0;
 	
@@ -41,8 +41,8 @@ static inline int sniff_list_push(const u_char *sniff_data, uint32_t sniff_data_
 
 	if (current >= sniffer_list.total_length) {
 		sniffer_list.list = 
-						(sniff_str_t *) realloc(sniffer_list.list, 
-								(sniffer_list.total_length + SNIFFER_LENGTH) * sizeof(sniff_str_t));
+						(struct sniff_iphdr *) realloc(sniffer_list.list, 
+								(sniffer_list.total_length + SNIFFER_LENGTH) * sizeof(struct sniff_iphdr));
 		if (sniffer_list.list == NULL) {
 			fprintf(stderr, "realloc failed.\n");
 			return FAILURE;
@@ -51,23 +51,19 @@ static inline int sniff_list_push(const u_char *sniff_data, uint32_t sniff_data_
 		sniffer_list.total_length += SNIFFER_LENGTH;
 	}
 
-	sniffer_list.list[current].data = (u_char *) malloc(sniff_data_len);
-	if (sniffer_list.list[current].data == NULL) {
-		fprintf(stderr, "malloc failed.\n");
-		return FAILURE;
-	}
-	memcpy(sniffer_list.list[current].data, sniff_data, sniff_data_len);
-	sniffer_list.list[current].len = sniff_data_len;
+	sniffer_list.list[current].src = ip_info.src;
+	sniffer_list.list[current].dst = ip_info.dst;
+	sniffer_list.list[current].len = ip_info.len;
 	sniffer_list.current++;
+
 	pthread_mutex_unlock(&sniff_mutex);
 
 	return SUCCESS;
 }
 
-static inline int sniff_list_pull(u_char *sniff_data)
+static inline int sniff_list_pull(struct sniff_iphdr *data)
 {
 	uint32_t current = 0;
-	u_char *data = NULL;
 	uint32_t len = 0;
 
 	pthread_mutex_lock(&sniff_mutex);
@@ -77,12 +73,10 @@ static inline int sniff_list_pull(u_char *sniff_data)
 		return FAILURE;
 	}
 
-	data = sniffer_list.list[current].data;
-	len = sniffer_list.list[current].len;
-	memcpy(sniff_data, data, len);
+	data->src = sniffer_list.list[current].src;
+	data->dst = sniffer_list.list[current].dst;
+	data->len = sniffer_list.list[current].len;
 
-	free(data);
-	sniffer_list.list[current].len = 0;
 	sniffer_list.current--;
 	pthread_mutex_unlock(&sniff_mutex);
 
@@ -94,13 +88,11 @@ static inline int sniff_list_destroy(void)
 	uint32_t current = sniffer_list.current;
 	int i = 0; 
 
-	for (i = 0; i < current; i++) {
-		free(sniffer_list.list[i].data);
-		sniffer_list.list[i].len = 0;
+	if (sniffer_list.list != NULL) {
+		free(sniffer_list.list);
+		sniffer_list.list = NULL;
 	}
-
-	free(sniffer_list.list);
-
+		
 	return 0;
 }
 
