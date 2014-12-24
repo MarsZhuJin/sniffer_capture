@@ -4,20 +4,19 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
-BUFF_SIZE	sniffer_capture.c	22;"	d	file:
+BUFF_SIZE	common.h	17;"	d
 CC	Makefile	/^CC=gcc$/;"	m
 CFLAGS	Makefile	/^CFLAGS=-g -O0$/;"	m
-DEFAULT_SNAPLEN	sniffer_capture.c	20;"	d	file:
+DEFAULT_SNAPLEN	common.h	14;"	d
 ETHER_ADDR_LEN	common.h	8;"	d
 FAILURE	common.h	5;"	d
-IP_DF	common.h	33;"	d
-IP_MF	common.h	34;"	d
-IP_OFFMASK	common.h	35;"	d
-IP_RF	common.h	32;"	d
-MAXINUM_SNAPLEN	sniffer_capture.c	19;"	d	file:
+IP_DF	common.h	39;"	d
+IP_MF	common.h	40;"	d
+IP_OFFMASK	common.h	41;"	d
+IP_RF	common.h	38;"	d
+MAXINUM_ADDR_LENGTH	common.h	15;"	d
+MAXINUM_SNAPLEN	common.h	13;"	d
 OBJ_FILE	Makefile	/^OBJ_FILE=sniffer_capture$/;"	m
-PORT_FILTER_HEADER	sniffer_capture.c	17;"	d	file:
-PORT_FILTER_HEADER_LENGTH	sniffer_capture.c	18;"	d	file:
 SNIFFER_LENGTH	sniffer_list.h	15;"	d
 SNIFF_BUFF_MAX_LENGTH	common.h	10;"	d
 SOURCE_FILE	Makefile	/^SOURCE_FILE=sniffer_capture.c$/;"	m
@@ -62,3 +61,4 @@ sniff_str_t	common.h	/^} sniff_str_t;$/;"	t	typeref:struct:__anon1
 sniffer_handler	sniffer_capture.c	/^void sniffer_handler(u_char *user, $/;"	f
 sniffer_list	sniffer_capture.c	/^struct sniff_list sniffer_list;$/;"	v	typeref:struct:sniff_list
 total_length	sniffer_list.h	/^	uint32_t total_length;$/;"	m	struct:sniff_list
+warning	sniffer_capture.c	/^void warning(const char *fmt, ...)$/;"	f

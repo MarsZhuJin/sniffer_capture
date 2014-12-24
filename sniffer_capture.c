@@ -14,13 +14,6 @@
 #include "common.h"
 #include "sniffer_list.h"
 
-#define PORT_FILTER_HEADER			"port "
-#define PORT_FILTER_HEADER_LENGTH	5
-#define MAXINUM_SNAPLEN		262144
-#define DEFAULT_SNAPLEN		MAXINUM_SNAPLEN
-
-#define BUFF_SIZE	128
-
 struct sniff_list sniffer_list;
 const char *program_name;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -110,9 +103,9 @@ void *redis_handler(void *arg)
 	char bytes[SNIFF_BUFF_MAX_LENGTH];
 	int size_ethernet = sizeof(struct sniff_ethernet);
 	const struct sniff_ip *ip = NULL;
-	char *ip_src = NULL;
-	char *ip_dst = NULL;
-	u_short total_length = 0;
+	char *addr_buf = NULL;
+	char ip_src[MAXINUM_ADDR_LENGTH] = "";
+	char ip_dst[MAXINUM_ADDR_LENGTH] = "";
 	redisContext *c = NULL;
 	int ret = 0;
 
@@ -124,6 +117,9 @@ void *redis_handler(void *arg)
 
 	while (1) {
 		memset(bytes, 0, SNIFF_BUFF_MAX_LENGTH);
+		memset(ip_src, 0, MAXINUM_ADDR_LENGTH);
+		memset(ip_dst, 0, MAXINUM_ADDR_LENGTH);
+
 		ret = sniff_list_pull(bytes);
 		if (ret < 0) {
 			continue;
@@ -131,9 +127,12 @@ void *redis_handler(void *arg)
 
 		ip = (struct sniff_ip *) (bytes + size_ethernet);
 		
-		ip_src = inet_ntoa(ip->ip_src);
-		ip_dst = inet_ntoa(ip->ip_dst);
-		total_length = ntohs(ip->ip_len);
+		addr_buf = inet_ntoa(ip->ip_src);
+		memcpy(ip_src, addr_buf, strlen(addr_buf) + 1);
+		addr_buf = inet_ntoa(ip->ip_dst);
+		memcpy(ip_dst, addr_buf, strlen(addr_buf) + 1);
+
+		u_short total_length = ntohs(ip->ip_len);
 
 		fprintf(stderr, "ip_src: %s, ip_dst: %s, total_length: %hd\n", ip_src, ip_dst, total_length);
 
@@ -217,8 +216,6 @@ int main(int argc, char **argv)
 	handler = pcap_open_live(device, DEFAULT_SNAPLEN, 0, 0, err_buf);
 	if (handler == NULL) 
         error("%s", err_buf);
-	else if (*err_buf)
-		warning("%s", err_buf);
 
 	if (pcap_lookupnet(device, &localnet, &netmask, err_buf) < 0) {
 		error("%s", err_buf);

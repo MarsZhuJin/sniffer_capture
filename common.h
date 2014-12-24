@@ -10,6 +10,12 @@
 #define SNIFF_BUFF_MAX_LENGTH	65535
 #define VERSION		"1.0.0"
 
+#define MAXINUM_SNAPLEN		262144
+#define DEFAULT_SNAPLEN		MAXINUM_SNAPLEN
+#define MAXINUM_ADDR_LENGTH		16
+
+#define BUFF_SIZE	128
+
 typedef struct {
 	u_char *data;
 	uint32_t len;
