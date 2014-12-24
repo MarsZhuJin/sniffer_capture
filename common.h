@@ -16,11 +16,6 @@
 
 #define BUFF_SIZE	128
 
-typedef struct {
-	u_char *data;
-	uint32_t len;
-} sniff_str_t;
-
 struct sniff_iphdr {
 	struct in_addr src;
 	struct in_addr dst;
