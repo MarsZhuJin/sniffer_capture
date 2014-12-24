@@ -109,6 +109,8 @@ void *redis_handler(void *arg)
 	redisContext *c = NULL;
 	int ret = 0;
 
+	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+
 	/* Initialize redis client */
 	c = redisConnect("127.0.0.1", 6379);
 	if (c->err) {
@@ -133,8 +135,6 @@ void *redis_handler(void *arg)
 		memcpy(ip_dst, addr_buf, strlen(addr_buf) + 1);
 
 		u_short total_length = ntohs(ip->ip_len);
-
-		fprintf(stderr, "ip_src: %s, ip_dst: %s, total_length: %hd\n", ip_src, ip_dst, total_length);
 
 		redisReply *r = 
 			(redisReply *)redisCommand(c, "INCRBY %s,%s %u", ip_src, ip_dst, total_length);
@@ -195,7 +195,8 @@ int main(int argc, char **argv)
 		}
 	}
 
-	cpu_num = sysconf(_SC_NPROCESSORS_ONLN);
+	//cpu_num = sysconf(_SC_NPROCESSORS_ONLN);
+	cpu_num = 10;
 	pthr = (pthread_t *) malloc(cpu_num * sizeof(pthread_t));
 	if (pthr == NULL) {
 		error("%s", strerror(errno));
@@ -235,17 +236,11 @@ int main(int argc, char **argv)
 
 	pcap_loop(handler, filter_number, sniffer_handler, NULL);
 
-	#if 0
-
 	for (i = 0; i < cpu_num; i++) {
-		pthread_join(pthr[i], NULL);
+		pthread_cancel(pthr[i]);
 	}
-	#endif
 
-	if (pthr != NULL) {
-        free(pthr);
-        pthr = NULL;
-	}
+    free(pthr);
 
 	pcap_close(handler);
 
